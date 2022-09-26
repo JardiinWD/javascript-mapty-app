@@ -16,3 +16,28 @@ const inputElevation = document.querySelector('.form__input--elevation');
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 //#endregion
+
+//#region Geolocation 
+
+// Se localizzazione è attiva
+if (navigator.geolocation) {
+    // () => la prima arrow è la funzione callback
+    // () => La seconda arrow è la funzione che scaturisce l'errore
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            // Verifico la posizione
+            console.log(position);
+            // Prendo la latitudine e la longitudine
+            const { latitude, longitude } = position.coords
+            // Verifico in console
+            console.log(latitude, longitude);
+            // Verifico su GMaps
+            console.log(`https://www.google.it/maps/@${latitude},${longitude}`);
+        }, () => {
+            alert('Non posso prendere la geolocalizzazione')
+        })
+}
+
+
+
+//#endregion
