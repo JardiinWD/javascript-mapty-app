@@ -21,34 +21,51 @@ const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 
 // Se localizzazione è attiva
 if (navigator.geolocation) {
-    // () => la prima arrow è la funzione callback
-    // () => La seconda arrow è la funzione che scaturisce l'errore
     navigator.geolocation.getCurrentPosition(
+        // () => la prima arrow è la funzione callback
         (position) => {
             // Verifico la posizione
-            console.log(position);
+            // console.log(position);
             // Prendo la latitudine e la longitudine
             const { latitude, longitude } = position.coords
             // Verifico in console
-            console.log(latitude, longitude);
+            // console.log(latitude, longitude);
             // Verifico su GMaps
-            console.log(`https://www.google.it/maps/@${latitude},${longitude}`);
+            // console.log(`https://www.google.it/maps/@${latitude},${longitude}`);
             //////////////////////
-            // Leaflet Map
+            // Leaflet Map //
+            // Coordinate latitude/longitude salvate in un array
             const coords = [latitude, longitude]
             //'map' => E' l'id del mio DIV
             // 13 => E' lo zoom iniziale
             const map = L.map('map').setView(coords, 13);
+            // console.log(map);
             // https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png => Tema della mappa
             L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
-            // Marker
-            L.marker(coords)
-                .addTo(map)
-                .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-                .openPopup();
-        }, () => {
+
+            // Metodo di leaflet     
+            map.on('click', (mapEvent) => {
+                console.log(mapEvent);
+                // Eseguo destructuring per la mia latitudine
+                // e longitudine presente in latlng
+                const { lat, lng } = mapEvent.latlng
+                // Marker che si sposta al click
+                // con le coordinate prese dal destructuring di mapEvent.latlng
+                L.marker([lat, lng]).addTo(map).bindPopup(L.popup({
+                    maxWidth: 250,
+                    minWidth: 100,
+                    autoClose: false, // Rimozione chiusura
+                    closeOnClick: false, // Rimozione chiusura al click
+                    className: 'running-popup',
+                }))
+                    .setPopupContent('Workout')
+                    .openPopup();
+            })
+        },
+        // () => La seconda arrow è la funzione che scaturisce l'errore
+        () => {
             alert('Non posso prendere la geolocalizzazione')
         })
 }
