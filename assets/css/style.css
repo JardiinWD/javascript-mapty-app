@@ -1,18 +1,13 @@
-:root {
-  --color-brand--1: #ffb545;
-  --color-brand--2: #00c46a;
+/*#region Stylesheet rules */
 
-  --color-dark--1: #2d3439;
-  --color-dark--2: #42484d;
-  --color-light--1: #aaa;
-  --color-light--2: #ececec;
-  --color-light--3: rgb(214, 222, 224);
-}
-
-* {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: inherit;
+  list-style: none;
+  text-decoration: none;
 }
 
 html {
@@ -27,20 +22,48 @@ body {
   line-height: 1.6;
   height: 100vh;
   overscroll-behavior-y: none;
-
   background-color: #fff;
   padding: 2.5rem;
-
   display: flex;
 }
 
-/* GENERAL */
+/*#endregion */
+
+/*#region Color Palette */
+
+:root {
+  --color-brand--1: #ffb545;
+  --color-brand--2: #00c46a;
+  --color-dark--1: #2d3439;
+  --color-dark--2: #42484d;
+  --color-light--1: #aaa;
+  --color-light--2: #ececec;
+  --color-light--3: rgb(214, 222, 224);
+}
+
+/*#endregion */
+
+/*#region Common Rules */
+
 a:link,
 a:visited {
   color: var(--color-brand--1);
 }
 
-/* SIDEBAR */
+.twitter-link:link,
+.twitter-link:visited {
+  color: var(--color-light--1);
+  transition: all 0.2s;
+}
+
+.twitter-link:hover,
+.twitter-link:active {
+  color: var(--color-light--2);
+}
+
+/*#endregion */
+
+/*#region Sidebar */
 .sidebar {
   flex-basis: 50rem;
   background-color: var(--color-dark--1);
@@ -171,25 +194,16 @@ a:visited {
   display: none;
 }
 
-.copyright {
+/* .copyright {
   margin-top: auto;
   font-size: 1.3rem;
   text-align: center;
   color: var(--color-light--1);
-}
+} */
 
-.twitter-link:link,
-.twitter-link:visited {
-  color: var(--color-light--1);
-  transition: all 0.2s;
-}
+/*#endregion */
 
-.twitter-link:hover,
-.twitter-link:active {
-  color: var(--color-light--2);
-}
-
-/* MAP */
+/*#region Map */
 #map {
   flex: 1;
   height: 100%;
@@ -218,3 +232,4 @@ a:visited {
 .cycling-popup .leaflet-popup-content-wrapper {
   border-left: 5px solid var(--color-brand--1);
 }
+/*#endregion */
