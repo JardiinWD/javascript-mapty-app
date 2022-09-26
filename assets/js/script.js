@@ -11,6 +11,48 @@ const inputElevation = document.querySelector('.form__input--elevation');
 //#endregion
 
 //#region Class
+
+class Workout {
+    date = new Date();
+    id = (Date.now() + '').slice(-10) // ID univoco
+    constructor(coords, distance, duration) {
+        this.coords = coords; // [lat, lng]
+        this.distance = distance // in KM
+        this.duration = duration // in Min
+    }
+}
+class Running extends Workout {
+    constructor(coords, distance, duration, cadence) {
+        super(coords, distance, duration)
+        this.cadence = cadence
+        this.calcPace()
+    }
+    calcPace() {
+        // min/km
+        this.pace = this.duration / this.distance
+        return this.pace
+    }
+}
+class Cycling extends Workout {
+    constructor(coords, distance, duration, elevationGain) {
+        super(coords, distance, duration)
+        this.elevationGain = elevationGain
+        this.calcSpeed()
+    }
+    calcSpeed() {
+        // km/h
+        this.speed = this.distance / (this.duration / 60)
+        return this.speed
+    }
+}
+
+/* const run1 = new Running([39, -12], 5.2, 24, 178)
+const cycle1 = new Cycling([39, -12], 27, 95, 525)
+console.log(run1);
+console.log(cycle1); */
+
+///////////////////
+// Application Architecture
 class App {
     #map; // Proprietà private
     #mapEvent // Proprietà private
@@ -71,9 +113,34 @@ class App {
     }
     // Metodo per il workout
     _newWorkout(e) {
+        // Funzione per Input Validi
+        const validInputs = (...inputs) => inputs.every(inp => Number.isFinite(inp))
+        // Funzione per Verifica dei numeri Positivi
+        const allPositive = (...inputs) => inputs.every(inp => inp > 0)
         e.preventDefault() // Prevengo Refresh al Click
-        // Pulizia di tutti i campi
-        inputDistance.value = inputDuration.value = inputCadence.value = inputElevation.value = ''
+
+        // Prendi dati dal Form
+        const type = inputType.value
+        const distance = +inputDistance.value
+        const duration = +inputDuration.value
+
+        // Controlli se dati sono validi
+
+        // Controlla se Workout è Ciclismo o corsa
+        if (type === 'running') {
+            const cadence = +inputCadence.value
+            // Controlli se dati sono validi
+            if (!validInputs(distance, duration, cadence) || !allPositive(distance, duration, cadence)) return alert('Inputs have to be positive numbers!')
+        }
+
+        if (type === 'cycling') {
+            const elevation = +inputElevation.value
+            // Controlli se dati sono validi
+            if (!validInputs(distance, duration, elevation) || !allPositive(distance, duration)) return alert('Inputs have to be positive numbers!')
+        }
+
+
+
         // Eseguo destructuring per la mia latitudine
         // e longitudine presente in latlng
         const { lat, lng } = this.#mapEvent.latlng
@@ -85,9 +152,10 @@ class App {
             autoClose: false, // Rimozione chiusura
             closeOnClick: false, // Rimozione chiusura al click
             className: 'running-popup',
-        }))
-            .setPopupContent('Workout')
-            .openPopup();
+        })).setPopupContent('Workout').openPopup();
+
+        // Pulizia di tutti i campi
+        inputDistance.value = inputDuration.value = inputCadence.value = inputElevation.value = ''
     }
 }
 // Generazione istanza di App
