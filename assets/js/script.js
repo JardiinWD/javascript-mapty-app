@@ -33,11 +33,24 @@ if (navigator.geolocation) {
             console.log(latitude, longitude);
             // Verifico su GMaps
             console.log(`https://www.google.it/maps/@${latitude},${longitude}`);
+            //////////////////////
+            // Leaflet Map
+            const coords = [latitude, longitude]
+            //'map' => E' l'id del mio DIV
+            // 13 => E' lo zoom iniziale
+            const map = L.map('map').setView(coords, 13);
+            // https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png => Tema della mappa
+            L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            // Marker
+            L.marker(coords)
+                .addTo(map)
+                .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+                .openPopup();
         }, () => {
             alert('Non posso prendere la geolocalizzazione')
         })
 }
-
-
 
 //#endregion
