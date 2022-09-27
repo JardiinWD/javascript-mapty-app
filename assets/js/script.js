@@ -15,6 +15,8 @@ const inputElevation = document.querySelector('.form__input--elevation');
 class Workout {
     date = new Date();
     id = (Date.now() + '').slice(-10) // ID univoco
+    clicks = 0;
+
     constructor(coords, distance, duration) {
         this.coords = coords; // [lat, lng]
         this.distance = distance // in KM
@@ -22,7 +24,10 @@ class Workout {
     }
     _setDescription() {
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`
+        this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`;
+    }
+    click() {
+        this.clicks++;
     }
 }
 class Running extends Workout {
@@ -65,15 +70,19 @@ class App {
     #map; // Proprietà private
     #mapEvent // Proprietà private
     #workouts = []
+    #mapZoomLevel = 13
     // Constructor di App
     constructor() {
         // Invoke del metodo Position
         // Non soffre di innalzamento
         this._getPosition()
+        // Get data from local storage
+        this._getLocalStorage();
         // Evento al submit
         form.addEventListener('submit', this._newWorkout.bind(this))
         // Selezione e cambio dell'input
         inputType.addEventListener('change', this._toggleElevationField)
+        containerWorkouts.addEventListener('click', this._moveToPopup.bind(this))
     }
     // Methods di App
     _getPosition() {
@@ -86,7 +95,7 @@ class App {
             })
         }
     }
-    // Caricamento Mapp
+    // Caricamento Mappa
     _loadMap(position) {
         // Prendo la latitudine e la longitudine
         const { latitude, longitude } = position.coords
@@ -98,7 +107,7 @@ class App {
         const coords = [latitude, longitude]
         //'map' => E' l'id del mio DIV
         // 13 => E' lo zoom iniziale
-        this.#map = L.map('map').setView(coords, 13);
+        this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
         // console.log(map);
         // https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png => Tema della mappa
         L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
@@ -107,6 +116,10 @@ class App {
 
         // Metodo di leaflet     
         this.#map.on('click', this._showForm.bind(this))
+        // Ciclo sull'array di Workouts
+        this.#workouts.forEach(work => {
+            this._renderWorkoutMarker(work);
+        });
     }
     // Metodo per mostrare il form
     _showForm(mapE) {
@@ -123,8 +136,9 @@ class App {
         form.style.display = 'none'
         form.classList.add('hidden')
         // Il form deve comunque riprendere il display Grid dopo 1sec
-        setTimeout(() => form.style.display = 'grid', 1000)
+        setTimeout(() => (form.style.display = 'grid'), 1000)
     }
+
     _toggleElevationField() {
         inputElevation.closest('.form__row').classList.toggle('form__row--hidden')
         inputCadence.closest('.form__row').classList.toggle('form__row--hidden')
@@ -239,6 +253,47 @@ class App {
             `
         }
         form.insertAdjacentHTML('afterend', html)
+    }
+
+    // metodo per centrare Mappa
+    _moveToPopup(e) {
+        if (!this.#map) return;
+        const workoutEl = e.target.closest('.workout')
+        console.log(workoutEl);
+        // Verifica in caso di assenza dell'elemento WorkoutEl
+        if (!workoutEl) return
+        const workout = this.#workouts.find(work => work.id === workoutEl.dataset.id)
+        console.log(workout);
+        this.#map.setView(workout.coords, this.#mapZoomLevel, {
+            animate: true,
+            pan: {
+                duration: 1,
+            }
+        })
+    }
+
+    // Set the local Storage
+    _setLocalStorage() {
+        localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+    }
+
+    // Get the local Storage
+    _getLocalStorage() {
+        // Prendo i dati dal local Storage
+        const data = JSON.parse(localStorage.getItem('workouts'));
+        // Se non presenti verifico con condizione usando un return
+        if (!data) return;
+        // Se invece fossero presenti vengono salvati nella var #workouts
+        this.#workouts = data;
+        this.#workouts.forEach(work => {
+            this._renderWorkout(work);
+        });
+    }
+
+    // Reset
+    reset() {
+        localStorage.removeItem('workouts');
+        location.reload();
     }
 }
 // Generazione istanza di App
